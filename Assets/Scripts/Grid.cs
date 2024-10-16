@@ -34,17 +34,17 @@ public class Grid : MonoBehaviour
     }
     #endregion
 
-    [SerializeField] int Width;
+    [SerializeField] int Width; //The dimensions of the grid.
     [SerializeField] int Height;
 
     [Range(0.0f, 5.0f)]
-    [SerializeField] float Spacing;
+    [SerializeField] float Spacing; //The distance between the center of adjacent tiles
 
     [Range(0.0f, 1.0f)]
-    [SerializeField] float VisualTileSize;
+    [SerializeField] float VisualTileSize;//The visual size of each tile when drawn in the editor.
 
     [Range(0.0f, 1.0f)]
-    [SerializeField] float AlphaTileSize;
+    [SerializeField] float AlphaTileSize;//
 
     public bool GeneratedGrid = false;
 
