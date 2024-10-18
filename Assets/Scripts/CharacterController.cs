@@ -24,7 +24,7 @@ public class CharacterController : MonoBehaviour
 
     protected Grid.Tile myCurrentTile = null;
     protected bool myReachedTile = false;
-    protected bool myReachedDestination = false;
+    public bool myReachedDestination = false;
     protected List<Grid.Tile> myWalkBuffer = new List<Grid.Tile>();
 
     Transform model = null;

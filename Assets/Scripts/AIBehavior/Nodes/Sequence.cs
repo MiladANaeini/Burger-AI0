@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Sequence : Node
 {
-    public Sequence(List<Node> someChildren, BlackBoard aBlackBoard) : base(someChildren, aBlackBoard)
+    public Sequence(List<Node> someChildren) : base(someChildren)
     {
     }
 

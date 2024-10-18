@@ -4,12 +4,13 @@ using UnityEngine;
 
 public class BehaviorTree 
 {
-    public Node rootNode;
-    public BlackBoard blackBoard;
-     
+    public Node myRootNode;
+    public BlackBoard myBlackBoard;
     public void UpdateTree()
     {
-        rootNode.EvaluateState();
+        Debug.Log("BT");
+
+        myRootNode.EvaluateState();
     }
 }
 

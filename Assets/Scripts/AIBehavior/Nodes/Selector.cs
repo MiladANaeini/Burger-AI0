@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Selector : Node
 {
-    public Selector(List<Node> someChildren, BlackBoard aBlackBoard) : base(someChildren, aBlackBoard)
+    public Selector(List<Node> someChildren) : base(someChildren)
     { 
     }
 
