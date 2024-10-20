@@ -6,38 +6,35 @@ using UnityEngine;
 public class MoveToFinishTask : Node
 {
     private Kim myKim;
-    private BlackBoard blackboard; // Change this from BehaviorTree to BlackBoard
-
-    public MoveToFinishTask(Kim kim, BlackBoard blackboard) : base(new List<Node>())
+    public MoveToFinishTask(Kim kim) : base(new List<Node>())
     {
         myKim = kim;
-        this.blackboard = blackboard; // Store the reference to the blackboard
-        Debug.Log("LLLLLLL");
-
     }
 
     public override ReturnState EvaluateState()
     {
-        Debug.Log("MoveToFinishTask EvaluateState called.");
+        // Check if zombie detection flag is true
+        if ((bool)myKim.blackboard.Data["zombieDetected"])
+        {
+            Debug.Log("Zombie detected! Stopping movement.");
+            return ReturnState.s_Failure; // Stop moving if zombies are detected
+        }
 
         // Get the path from the blackboard
-        if (!blackboard.Data.ContainsKey("path"))
+        if (!myKim.blackboard.Data.ContainsKey("path"))
         {
             Debug.Log("No path in blackboard.");
             return ReturnState.s_Failure;
         }
 
-        List<Grid.Tile> path = (List<Grid.Tile>)blackboard.Data["path"];
+        List<Grid.Tile> path = (List<Grid.Tile>)myKim.blackboard.Data["path"];
 
-        // Set the walk buffer only if it's not already set
+        // Set the walk buffer if it's not already set
         if (myKim.myWalkBuffer.Count == 0 && path.Count > 0)
         {
             myKim.SetWalkBuffer(path);
             Debug.Log("Path set in Kim's walk buffer.");
         }
-
-        //// Move Kim along the path
-        //myKim.UpdateCharacter();
 
         // Check if destination is reached
         if (myKim.myReachedDestination)
@@ -46,6 +43,6 @@ public class MoveToFinishTask : Node
             return ReturnState.s_Success;
         }
 
-        return ReturnState.s_Running;
+        return ReturnState.s_Running; // Still moving
     }
 }

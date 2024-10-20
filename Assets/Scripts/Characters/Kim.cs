@@ -6,10 +6,15 @@ using UnityEngine;
 public class Kim : CharacterController
 {
     [SerializeField] float ContextRadius;
+    public BlackBoard blackboard;
 
     public override void StartCharacter()
     {
         base.StartCharacter();
+        if (blackboard == null)
+        {
+            blackboard = new BlackBoard(); // Initialize the blackboard
+        }
     }
 
     public override void UpdateCharacter()

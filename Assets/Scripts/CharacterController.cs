@@ -20,7 +20,7 @@ public class CharacterController : MonoBehaviour
 {
     const float ReachDistThreshold = 0.1f;
     const float CharacterMoveSpeed = 1.0f;
-    protected Animator myAnimator;
+    public Animator myAnimator;
 
     protected Grid.Tile myCurrentTile = null;
     protected bool myReachedTile = false;

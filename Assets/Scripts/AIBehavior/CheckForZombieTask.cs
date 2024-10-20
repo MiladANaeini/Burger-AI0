@@ -4,43 +4,55 @@ using UnityEngine;
 
 public class CheckForZombieTask : Node
 {
-     private Kim myKim;
-    private Vector2Int[] thirdAdjacentOffsets = new Vector2Int[]
-    {
-        new Vector2Int(0, 3),
-        new Vector2Int(1, 3),
-        new Vector2Int(0, -3),
-        new Vector2Int(-1, -3),
-        new Vector2Int(3, 0),
-        new Vector2Int(3, 1),
-        new Vector2Int(-3, 0),
-        new Vector2Int(-3, 1),
-        new Vector2Int(3, 2),
-        new Vector2Int(3, -2),
-        new Vector2Int(-3, 2),
-        new Vector2Int(-3, -2)
-    };
+    private Kim myKim;
+    private List<Vector2Int> thirdAdjacentOffsets;
+
     public CheckForZombieTask(Kim kim) : base(new List<Node>())
     {
         myKim = kim;
+        thirdAdjacentOffsets = GetThirdAdjacentOffsets();
     }
+
+    private List<Vector2Int> GetThirdAdjacentOffsets()
+    {
+        List<Vector2Int> offsets = new List<Vector2Int>();
+
+        for (int x = -3; x <= 3; x++)
+        {
+            for (int y = -3; y <= 3; y++)
+            {
+                if (x == 0 && y == 0) continue; // Skip the current tile
+                offsets.Add(new Vector2Int(x, y));
+            }
+        }
+
+        return offsets;
+    }
+
     public override ReturnState EvaluateState()
     {
-        // Loop through the third adjacent tiles and check for zombies
+        bool zombieFound = false;
+
         foreach (var offset in thirdAdjacentOffsets)
         {
             Vector3 checkPosition = myKim.transform.position + new Vector3(offset.x, 0, offset.y);
-            Collider[] colliders = Physics.OverlapSphere(checkPosition, 0.5f); // Small radius to detect entities
+            Collider[] colliders = Physics.OverlapSphere(checkPosition, 0.3f); // Use a smaller radius
 
             foreach (var collider in colliders)
             {
                 if (collider.CompareTag("Zombie"))
                 {
-                    return ReturnState.s_Failure;  // Fail if any zombie is found
+                    Debug.Log("Zombie detected!");
+                    zombieFound = true;
+                    break;
                 }
             }
+
+            if (zombieFound) break;
         }
 
-        return ReturnState.s_Success; // Success if no zombies are found
+        myKim.blackboard.Data["zombieDetected"] = zombieFound;
+
+        return zombieFound ? ReturnState.s_Failure : ReturnState.s_Success;
     }
 }

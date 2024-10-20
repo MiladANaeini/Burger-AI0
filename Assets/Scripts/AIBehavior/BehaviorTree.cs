@@ -15,11 +15,11 @@ public class BehaviorTree
 
 public class BlackBoard
 {
-    public Dictionary<string, object> Data;
+    public Dictionary<string, object> Data { get; private set; }
 
-    // Initialize the Data dictionary in the constructor
     public BlackBoard()
     {
         Data = new Dictionary<string, object>();
+        Data["zombieDetected"] = false; // Initialize the flag
     }
 }

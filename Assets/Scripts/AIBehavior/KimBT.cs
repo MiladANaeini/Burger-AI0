@@ -11,13 +11,17 @@ public class KimBT : MonoBehaviour
         Kim myKim = GetComponent<Kim>();
 
         myBehaviorTree = new BehaviorTree();
-        myBehaviorTree.myBlackBoard = new BlackBoard(); // Ensure the blackboard is initialized
+        myBehaviorTree.myBlackBoard = new BlackBoard();
 
-        // The root is a sequence
-        myBehaviorTree.myRootNode = new Sequence(new List<Node>
+        myBehaviorTree.myRootNode = new Selector(new List<Node>
         {
-            new FindPathTask(myKim, myBehaviorTree.myBlackBoard), // Try to find a path
-            new MoveToFinishTask(myKim, myBehaviorTree.myBlackBoard) // Move to the finish if pathfinding was successful
+            // Main sequence: Find path, check for zombies, move and detect zombies during movement
+            new Sequence(new List<Node>
+            {
+                new FindPathTask(myKim),       // Step 1: Find a path
+                new CheckForZombieTask(myKim), // Step 2: Initial check for zombies before moving
+                new MoveAndDetectTask(myKim)   // Step 3: Continuously move and check for zombies
+            }),
         });
 
         myBehaviorTree.myRootNode.PopulateBlackboard(myBehaviorTree.myBlackBoard);

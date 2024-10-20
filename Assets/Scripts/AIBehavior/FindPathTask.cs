@@ -7,20 +7,18 @@ using UnityEngine;
 public class FindPathTask : Node
 {
     private Kim myKim;
-    private BlackBoard blackboard;
     
-    public FindPathTask(Kim kim, BlackBoard blackboard) : base(new List<Node>())
+    public FindPathTask(Kim kim) : base(new List<Node>())
     {
         myKim = kim;
-        this.blackboard = blackboard; // Store the reference to the blackboard
     }
 
     public override ReturnState EvaluateState()
     {
-        // Check if a path has already been found
+        BlackBoard blackboard = myKim.blackboard;
         if (blackboard.Data.ContainsKey("path") && blackboard.Data["path"] is List<Grid.Tile> path && path.Count > 0)
         {
-            return ReturnState.s_Success; // Skip if path is already found
+            return ReturnState.s_Success; 
         }
 
         // Calculate the new path

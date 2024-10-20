@@ -10,22 +10,20 @@ public class Selector : Node
 
     public override ReturnState EvaluateState()
     {
-        // Start with a default state of failure
         foreach (Node child in myChildren)
         {
             ReturnState childState = child.EvaluateState();
             switch (childState)
             {
                 case ReturnState.s_Success:
-                    return ReturnState.s_Success; // Return immediately if any child succeeds
+                    return ReturnState.s_Success; 
                 case ReturnState.s_Failure:
-                    continue; // Continue to next child
+                    continue; 
                 case ReturnState.s_Running:
-                    return ReturnState.s_Running; // Return running if any child is running
+                    return ReturnState.s_Running; 
             }
         }
 
-        // If we reach here, it means all children failed
         return ReturnState.s_Failure;
     }
 }
