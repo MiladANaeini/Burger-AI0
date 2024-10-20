@@ -10,8 +10,6 @@ public class Kim : CharacterController
     public override void StartCharacter()
     {
         base.StartCharacter();
-        Debug.Log("Kim");
-
     }
 
     public override void UpdateCharacter()

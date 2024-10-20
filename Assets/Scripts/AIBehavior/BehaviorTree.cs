@@ -8,7 +8,6 @@ public class BehaviorTree
     public BlackBoard myBlackBoard;
     public void UpdateTree()
     {
-        Debug.Log("BT");
 
         myRootNode.EvaluateState();
     }
@@ -18,4 +17,9 @@ public class BlackBoard
 {
     public Dictionary<string, object> Data;
 
+    // Initialize the Data dictionary in the constructor
+    public BlackBoard()
+    {
+        Data = new Dictionary<string, object>();
+    }
 }

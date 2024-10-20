@@ -4,30 +4,26 @@ using UnityEngine;
 
 public class KimBT : MonoBehaviour
 {
-    private BehaviorTree myBehaviorTree;  // Declare a BehaviorTree instance
+    private BehaviorTree myBehaviorTree;
 
     private void Start()
     {
-        Debug.Log("KimBT");
-
         Kim myKim = GetComponent<Kim>();
 
-        // Create the behavior tree
         myBehaviorTree = new BehaviorTree();
+        myBehaviorTree.myBlackBoard = new BlackBoard(); // Ensure the blackboard is initialized
 
-        // Initialize the root node with a sequence
+        // The root is a sequence
         myBehaviorTree.myRootNode = new Sequence(new List<Node>
         {
-            new MoveToFinishTask(myKim)
+            new FindPathTask(myKim, myBehaviorTree.myBlackBoard), // Try to find a path
+            new MoveToFinishTask(myKim, myBehaviorTree.myBlackBoard) // Move to the finish if pathfinding was successful
         });
 
-        // Populate the blackboard for the behavior tree
         myBehaviorTree.myRootNode.PopulateBlackboard(myBehaviorTree.myBlackBoard);
     }
-
     private void Update()
     {
-        // Evaluate the behavior tree in the game's update loop
         myBehaviorTree.UpdateTree();
     }
 }

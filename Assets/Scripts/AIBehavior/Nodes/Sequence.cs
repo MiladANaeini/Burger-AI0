@@ -10,25 +10,32 @@ public class Sequence : Node
 
     public override ReturnState EvaluateState()
     {
-
-        ReturnState aState = ReturnState.s_Failure;
-
-        bool isRunning = false;
+        // Default to failure
+        ReturnState aState = ReturnState.s_Success;
+        bool anyChildRunning = false; // Track if any child is running
 
         foreach (Node child in myChildren)
         {
-            switch (child.EvaluateState()) { 
-            case ReturnState.s_Success:
-                    aState = ReturnState.s_Success;
-                    return aState;
-            case ReturnState.s_Failure:
+            ReturnState childState = child.EvaluateState();
+
+            switch (childState)
+            {
+                case ReturnState.s_Success:
+                    // If any child is successful, continue to check the rest
                     break;
-            case ReturnState.s_Running:
+                case ReturnState.s_Failure:
+                    // If any child fails, the sequence fails
+                    aState = ReturnState.s_Failure;
+                    break;
+                case ReturnState.s_Running:
+                    // If any child is running, mark this sequence as running
+                    anyChildRunning = true;
                     aState = ReturnState.s_Running;
                     break;
             }
         }
-        if (isRunning) aState = ReturnState.s_Running;
-             return aState;
+
+        // If no child has failed, but at least one is running
+        return anyChildRunning ? ReturnState.s_Running : aState;
     }
 }
