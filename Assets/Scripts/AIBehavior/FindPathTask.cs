@@ -67,7 +67,10 @@ public class FindPathTask : Node
                     continue;
                 }
 
-                float tentativeGCost = gCost[currentTile] + GetDistance(currentTile, neighbor);
+                // Check for zombies near the neighbor tile
+                float zombiePenalty = GetZombiePenalty(neighbor);
+
+                float tentativeGCost = gCost[currentTile] + GetDistance(currentTile, neighbor) + zombiePenalty;
 
                 if (!openList.Contains(neighbor))
                 {
@@ -85,6 +88,24 @@ public class FindPathTask : Node
         }
 
         return new List<Grid.Tile>();
+    }
+    private float GetZombiePenalty(Grid.Tile tile)
+    {
+        float penalty = 0;
+
+        // Check the surrounding area for zombies
+        Collider[] colliders = Physics.OverlapSphere(Grid.Instance.WorldPos(tile), 1.0f); // Adjust radius based on your grid
+        foreach (var collider in colliders)
+        {
+            if (collider.CompareTag("Zombie"))
+            {
+                // Apply a penalty for proximity to a zombie, higher penalty if closer
+                float distanceToZombie = Vector3.Distance(Grid.Instance.WorldPos(tile), collider.transform.position);
+                penalty += Mathf.Clamp(10 - distanceToZombie, 0, 10); // Max penalty of 10
+            }
+        }
+
+        return penalty;
     }
     private float GetHeuristic(Grid.Tile a, Grid.Tile b)
     {
