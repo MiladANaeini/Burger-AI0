@@ -15,25 +15,36 @@ public class FindPathTask : Node
 
     public override ReturnState EvaluateState()
     {
-        BlackBoard blackboard = myKim.blackboard;
-        if (blackboard.Data.ContainsKey("path") && blackboard.Data["path"] is List<Grid.Tile> path && path.Count > 0)
+        // Get the target position from the blackboard
+        if (!myKim.blackboard.Data.ContainsKey("target"))
         {
-            return ReturnState.s_Success; 
+            Debug.Log("No target set in the blackboard.");
+            return ReturnState.s_Failure;
         }
 
-        // Calculate the new path
-        List<Grid.Tile> newPath = FindPath(Grid.Instance.GetClosest(myKim.transform.position), Grid.Instance.GetFinishTile());
+        Vector3 targetPosition = (Vector3)myKim.blackboard.Data["target"];
+        BlackBoard blackboard = myKim.blackboard;
 
-        // Store the new path if found
+        // Check if the path to the target is already in the blackboard
+        if (blackboard.Data.ContainsKey("path") && blackboard.Data["path"] is List<Grid.Tile> path && path.Count > 0)
+        {
+            Debug.Log("Path already found.");
+            return ReturnState.s_Success; // Path already exists
+        }
+
+        // Find a path to the target position
+        List<Grid.Tile> newPath = FindPath(Grid.Instance.GetClosest(myKim.transform.position), Grid.Instance.GetClosest(targetPosition));
+
+        // Store the new path in the blackboard
         if (newPath == null || newPath.Count == 0)
         {
-            Debug.Log("Failed to find a path.");
-            return ReturnState.s_Failure; // Pathfinding failed
+            Debug.Log("Failed to find a path to target.");
+            return ReturnState.s_Failure;
         }
 
         blackboard.Data["path"] = newPath;
-        Debug.Log("Path found and stored in blackboard.");
-        return ReturnState.s_Success; // Pathfinding succeeded
+        Debug.Log("Path to target found and stored in blackboard.");
+        return ReturnState.s_Success;
     }
 
     private List<Grid.Tile> FindPath(Grid.Tile startTile, Grid.Tile endTile)
