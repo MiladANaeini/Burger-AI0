@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Kim : CharacterController
 {
-    [SerializeField] float ContextRadius;
+    public float ContextRadius;
     public BlackBoard blackboard;
 
     public override void StartCharacter()
@@ -22,7 +22,11 @@ public class Kim : CharacterController
         base.UpdateCharacter();
         Zombie closest = GetClosest(GetContextByTag("Zombie"))?.GetComponent<Zombie>();
     }
-
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red; // Color of the sphere
+        Gizmos.DrawWireSphere(transform.position, ContextRadius); // Draw wire sphere to visualize detection radius
+    }
     GameObject[] GetContextByTag(string aTag)
     {
         Collider[] context = Physics.OverlapSphere(transform.position, ContextRadius);

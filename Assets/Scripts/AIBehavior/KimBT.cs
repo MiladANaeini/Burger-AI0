@@ -19,7 +19,6 @@ public class KimBT : MonoBehaviour
             new Sequence(new List<Node>
             {
                 new FindPathTask(myKim),       // Step 1: Find a path
-                new CheckForZombieTask(myKim), // Step 2: Initial check for zombies before moving
                 new MoveAndDetectTask(myKim)   // Step 3: Continuously move and check for zombies
             }),
         });

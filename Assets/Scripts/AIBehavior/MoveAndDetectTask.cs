@@ -11,31 +11,38 @@ public class MoveAndDetectTask : Node
     }
     public override ReturnState EvaluateState()
     {
-        var checkForZombieTask = new CheckForZombieTask(myKim);
-        var zombieState = checkForZombieTask.EvaluateState();
+        bool zombieFound = false;
+        Collider[] colliders = Physics.OverlapSphere(myKim.transform.position, myKim.ContextRadius);
+        foreach (var collider in colliders)
+        {
+            if (collider.CompareTag("Zombie"))
+            {
+                zombieFound = true;
+            }
+        }
+        myKim.blackboard.Data["zombieDetected"] = zombieFound;
 
-        if (zombieState == ReturnState.s_Failure)
+        if (zombieFound)
         {
             Debug.Log("Zombie detected! Stopping movement and finding another path.");
 
-            //myKim.myWalkBuffer.Clear();
-
+            myKim.myWalkBuffer.Clear();
+            myKim.myReachedDestination = false;
             return ReturnState.s_Failure;
         }
 
         var moveToFinishTask = new MoveToFinishTask(myKim);
         var moveState = moveToFinishTask.EvaluateState();
 
-        // Debug movement state for tracking behavior
-        Debug.Log("Movement state: " + moveState);
 
         if (moveState == ReturnState.s_Success)
         {
-            Debug.Log("Kim has reached the destination.");
+
             return ReturnState.s_Success;
         }
 
         // Otherwise, keep moving towards the finish
+
         return ReturnState.s_Running;
     }
 }

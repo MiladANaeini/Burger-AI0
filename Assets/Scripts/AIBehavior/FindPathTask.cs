@@ -91,7 +91,7 @@ public class FindPathTask : Node
     }
     private float GetZombiePenalty(Grid.Tile tile)
     {
-        float penalty = 0;
+        float penalty = 5;
 
         // Check the surrounding area for zombies
         Collider[] colliders = Physics.OverlapSphere(Grid.Instance.WorldPos(tile), 1.0f); // Adjust radius based on your grid

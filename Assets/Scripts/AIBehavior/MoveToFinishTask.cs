@@ -32,14 +32,16 @@ public class MoveToFinishTask : Node
         // Set the walk buffer if it's not already set
         if (myKim.myWalkBuffer.Count == 0 && path.Count > 0)
         {
-            myKim.SetWalkBuffer(path);
-            Debug.Log("Path set in Kim's walk buffer.");
+            if (!(bool)myKim.blackboard.Data["zombieDetected"])
+            {
+                myKim.SetWalkBuffer(path);
+                Debug.Log("Path set in Kim's walk buffer.");
+            } 
         }
 
         // Check if destination is reached
         if (myKim.myReachedDestination)
         {
-            Debug.Log("Kim has reached the destination.");
             return ReturnState.s_Success;
         }
 
