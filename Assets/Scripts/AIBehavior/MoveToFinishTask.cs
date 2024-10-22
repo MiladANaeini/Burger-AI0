@@ -16,7 +16,8 @@ public class MoveToFinishTask : Node
 
         if ((bool)myKim.blackboard.Data["zombieDetected"])
         {
-            Debug.Log("Zombie detected! Stopping movement.");
+            Debug.Log("Zombie detected! Stopping movement. " +
+                "Blackboard value - zombieDetected: " + myKim.blackboard.Data["zombieDetected"]);
             return ReturnState.s_Failure; 
         }
 

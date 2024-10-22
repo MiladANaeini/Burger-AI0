@@ -14,8 +14,16 @@ public class ResetZombieDetectionTask : Node
 
     public override ReturnState EvaluateState()
     {
-        Debug.Log("Resetting zombieDetected flag to false");
-        myKim.blackboard.Data["zombieDetected"] = false;
+        Debug.Log("Resetting zombieDetected111111111111111" + myKim.blackboard.Data["zombieDetected"]);
+        if ((bool)myKim.blackboard.Data["zombieDetected"])
+        {
+            myKim.blackboard.Data["zombieDetected"] = false;
+        Debug.Log("Resetting zombieDetected2222222222222222" + myKim.blackboard.Data["zombieDetected"]);
         return ReturnState.s_Success;
+
+        }
+        return ReturnState.s_Failure;
+
     }
+
 }

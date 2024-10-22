@@ -20,14 +20,14 @@ public class FindPathTask : Node
         var checkForZombieTask = new CheckForZombieTask(myKim);
 
 
-        if (blackboard.Data.ContainsKey("zombieDetected") && (bool)blackboard.Data["zombieDetected"])
-        {
-            // If a zombie was detected, reset the flag
-            blackboard.Data["zombieDetected"] = false; // Reset the flag
-            //Debug.Log("calling 666666666");
+        //if (blackboard.Data.ContainsKey("zombieDetected") && (bool)blackboard.Data["zombieDetected"])
+        //{
+        //    // If a zombie was detected, reset the flag
+        //    blackboard.Data["zombieDetected"] = false; // Reset the flag
+        //    //Debug.Log("calling 666666666");
 
-        }
-        if (blackboard.Data.ContainsKey("path") && blackboard.Data["path"] is List<Grid.Tile> path && path.Count > 0)
+        //}
+        if (blackboard.Data.ContainsKey("zombieDetected") && !(bool)blackboard.Data["zombieDetected"] && blackboard.Data.ContainsKey("path") && blackboard.Data["path"] is List<Grid.Tile> path && path.Count > 0)
         {
         Debug.Log("s_Success");
             return ReturnState.s_Success; 
