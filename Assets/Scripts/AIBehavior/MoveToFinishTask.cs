@@ -13,38 +13,38 @@ public class MoveToFinishTask : Node
 
     public override ReturnState EvaluateState()
     {
-        // Check if zombie detection flag is true
+
         if ((bool)myKim.blackboard.Data["zombieDetected"])
         {
             Debug.Log("Zombie detected! Stopping movement.");
-            return ReturnState.s_Failure; // Stop moving if zombies are detected
+            myKim.myWalkBuffer.Clear();
+            return ReturnState.s_Failure; 
         }
 
-        // Get the path from the blackboard
+  
         if (!myKim.blackboard.Data.ContainsKey("path"))
         {
             Debug.Log("No path in blackboard.");
             return ReturnState.s_Failure;
         }
 
-        List<Grid.Tile> path = (List<Grid.Tile>)myKim.blackboard.Data["path"];
 
-        // Set the walk buffer if it's not already set
+        List<Grid.Tile> path = (List<Grid.Tile>)myKim.blackboard.Data["path"];
+   
         if (myKim.myWalkBuffer.Count == 0 && path.Count > 0)
         {
-            if (!(bool)myKim.blackboard.Data["zombieDetected"])
-            {
+           
                 myKim.SetWalkBuffer(path);
                 Debug.Log("Path set in Kim's walk buffer.");
-            } 
+            
         }
 
-        // Check if destination is reached
+    
         if (myKim.myReachedDestination)
         {
             return ReturnState.s_Success;
         }
 
-        return ReturnState.s_Running; // Still moving
+        return ReturnState.s_Running;
     }
 }

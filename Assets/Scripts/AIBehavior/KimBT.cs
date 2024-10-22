@@ -13,13 +13,14 @@ public class KimBT : MonoBehaviour
         myBehaviorTree = new BehaviorTree();
         myBehaviorTree.myBlackBoard = new BlackBoard();
 
-        myBehaviorTree.myRootNode = new Selector(new List<Node>
+        myBehaviorTree.myRootNode = new Sequence(new List<Node>
         {
-            // Main sequence: Find path, check for zombies, move and detect zombies during movement
             new Sequence(new List<Node>
             {
-                new FindPathTask(myKim),       // Step 1: Find a path
-                new MoveAndDetectTask(myKim)   // Step 3: Continuously move and check for zombies
+
+                new FindPathTask(myKim),       
+                new CheckForZombieTask(myKim),       
+                new MoveToFinishTask(myKim)   
             }),
         });
 

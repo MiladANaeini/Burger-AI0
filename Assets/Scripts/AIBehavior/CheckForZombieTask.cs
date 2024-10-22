@@ -5,6 +5,7 @@ using UnityEngine;
 public class CheckForZombieTask : Node
 {
     private Kim myKim;
+      public bool zombieFound = false;
 
     public CheckForZombieTask(Kim kim) : base(new List<Node>())
     {
@@ -14,9 +15,6 @@ public class CheckForZombieTask : Node
 
     public override ReturnState EvaluateState()
     {
-        bool zombieFound = false;
-
-        // Use Physics.OverlapSphere to check for zombies within the ContextRadius
         Collider[] colliders = Physics.OverlapSphere(myKim.transform.position, myKim.ContextRadius);
         foreach (var collider in colliders)
         {
@@ -26,9 +24,8 @@ public class CheckForZombieTask : Node
             }
         }
 
-        // Store the result in the blackboard
         myKim.blackboard.Data["zombieDetected"] = zombieFound;
 
-        return zombieFound ? ReturnState.s_Failure : ReturnState.s_Success;
+        return zombieFound ? ReturnState.s_Failure : ReturnState.s_Running;
     }
 }

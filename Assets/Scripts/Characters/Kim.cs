@@ -13,7 +13,7 @@ public class Kim : CharacterController
         base.StartCharacter();
         if (blackboard == null)
         {
-            blackboard = new BlackBoard(); // Initialize the blackboard
+            blackboard = new BlackBoard(); 
         }
     }
 

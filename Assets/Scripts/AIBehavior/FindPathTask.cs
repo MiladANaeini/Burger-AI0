@@ -15,16 +15,28 @@ public class FindPathTask : Node
 
     public override ReturnState EvaluateState()
     {
+
         BlackBoard blackboard = myKim.blackboard;
+        var checkForZombieTask = new CheckForZombieTask(myKim);
+
+
+        if (blackboard.Data.ContainsKey("zombieDetected") && (bool)blackboard.Data["zombieDetected"])
+        {
+            // If a zombie was detected, reset the flag
+            blackboard.Data["zombieDetected"] = false; // Reset the flag
+            Debug.Log("calling 666666666");
+
+        }
         if (blackboard.Data.ContainsKey("path") && blackboard.Data["path"] is List<Grid.Tile> path && path.Count > 0)
         {
+        Debug.Log("calling 5555555555555");
             return ReturnState.s_Success; 
         }
 
-        // Calculate the new path
+
+
         List<Grid.Tile> newPath = FindPath(Grid.Instance.GetClosest(myKim.transform.position), Grid.Instance.GetFinishTile());
 
-        // Store the new path if found
         if (newPath == null || newPath.Count == 0)
         {
             Debug.Log("Failed to find a path.");
@@ -38,6 +50,7 @@ public class FindPathTask : Node
 
     private List<Grid.Tile> FindPath(Grid.Tile startTile, Grid.Tile endTile)
     {
+        Debug.Log("calling fath");
         List<Grid.Tile> openList = new List<Grid.Tile>();
         HashSet<Grid.Tile> closedList = new HashSet<Grid.Tile>();
         Dictionary<Grid.Tile, Grid.Tile> parentMap = new Dictionary<Grid.Tile, Grid.Tile>();
@@ -93,13 +106,12 @@ public class FindPathTask : Node
     {
         float penalty = 5;
 
-        // Check the surrounding area for zombies
         Collider[] colliders = Physics.OverlapSphere(Grid.Instance.WorldPos(tile), 1.0f); // Adjust radius based on your grid
         foreach (var collider in colliders)
         {
             if (collider.CompareTag("Zombie"))
             {
-                // Apply a penalty for proximity to a zombie, higher penalty if closer
+        
                 float distanceToZombie = Vector3.Distance(Grid.Instance.WorldPos(tile), collider.transform.position);
                 penalty += Mathf.Clamp(10 - distanceToZombie, 0, 10); // Max penalty of 10
             }
