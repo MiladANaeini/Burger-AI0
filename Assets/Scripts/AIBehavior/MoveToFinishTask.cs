@@ -14,14 +14,13 @@ public class MoveToFinishTask : Node
     public override ReturnState EvaluateState()
     {
 
-        if ((bool)myKim.blackboard.Data["zombieDetected"])///////////////////
+        if ((bool)myKim.blackboard.Data["zombieDetected"])
         {
             Debug.Log("Zombie detected! Stopping movement.");
-            myKim.myWalkBuffer.Clear();
             return ReturnState.s_Failure; 
         }
 
-  
+
         if (!myKim.blackboard.Data.ContainsKey("path"))
         {
             Debug.Log("No path in blackboard.");

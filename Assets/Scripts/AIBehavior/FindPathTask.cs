@@ -24,12 +24,12 @@ public class FindPathTask : Node
         {
             // If a zombie was detected, reset the flag
             blackboard.Data["zombieDetected"] = false; // Reset the flag
-            Debug.Log("calling 666666666");
+            //Debug.Log("calling 666666666");
 
         }
         if (blackboard.Data.ContainsKey("path") && blackboard.Data["path"] is List<Grid.Tile> path && path.Count > 0)
         {
-        Debug.Log("calling 5555555555555");
+        Debug.Log("s_Success");
             return ReturnState.s_Success; 
         }
 

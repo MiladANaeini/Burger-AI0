@@ -5,7 +5,6 @@ using UnityEngine;
 public class CheckForZombieTask : Node
 {
     private Kim myKim;
-      public bool zombieFound = false;
 
     public CheckForZombieTask(Kim kim) : base(new List<Node>())
     {
@@ -16,6 +15,7 @@ public class CheckForZombieTask : Node
     public override ReturnState EvaluateState()
     {
         Collider[] colliders = Physics.OverlapSphere(myKim.transform.position, myKim.ContextRadius);
+      bool zombieFound = false;
         foreach (var collider in colliders)
         {
             if (collider.CompareTag("Zombie"))
