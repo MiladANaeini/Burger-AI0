@@ -15,36 +15,25 @@ public class FindPathTask : Node
 
     public override ReturnState EvaluateState()
     {
-        // Get the target position from the blackboard
-        if (!myKim.blackboard.Data.ContainsKey("target"))
-        {
-            Debug.Log("No target set in the blackboard.");
-            return ReturnState.s_Failure;
-        }
-
-        Vector3 targetPosition = (Vector3)myKim.blackboard.Data["target"];
         BlackBoard blackboard = myKim.blackboard;
-
-        // Check if the path to the target is already in the blackboard
         if (blackboard.Data.ContainsKey("path") && blackboard.Data["path"] is List<Grid.Tile> path && path.Count > 0)
         {
-            Debug.Log("Path already found.");
-            return ReturnState.s_Success; // Path already exists
+            return ReturnState.s_Success; 
         }
 
-        // Find a path to the target position
-        List<Grid.Tile> newPath = FindPath(Grid.Instance.GetClosest(myKim.transform.position), Grid.Instance.GetClosest(targetPosition));
+        // Calculate the new path
+        List<Grid.Tile> newPath = FindPath(Grid.Instance.GetClosest(myKim.transform.position), Grid.Instance.GetFinishTile());
 
-        // Store the new path in the blackboard
+        // Store the new path if found
         if (newPath == null || newPath.Count == 0)
         {
-            Debug.Log("Failed to find a path to target.");
-            return ReturnState.s_Failure;
+            Debug.Log("Failed to find a path.");
+            return ReturnState.s_Failure; // Pathfinding failed
         }
 
         blackboard.Data["path"] = newPath;
-        Debug.Log("Path to target found and stored in blackboard.");
-        return ReturnState.s_Success;
+        Debug.Log("Path found and stored in blackboard.");
+        return ReturnState.s_Success; // Pathfinding succeeded
     }
 
     private List<Grid.Tile> FindPath(Grid.Tile startTile, Grid.Tile endTile)
