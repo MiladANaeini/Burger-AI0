@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System.IO;
 
 
 public class GoAroundZombieTask : Node
@@ -30,6 +31,7 @@ public class GoAroundZombieTask : Node
 
         List<Grid.Tile> newPath = FindPathWithZombieAvoidance(startTile, endTile);
         blackboard.Data["path"] = newPath;
+        myKim.SetWalkBuffer(newPath);
 
         // Here, we can return Success or Running based on the task's context
         return ReturnState.s_Failure; // Return success after handling zombies

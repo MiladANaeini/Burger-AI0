@@ -20,8 +20,8 @@ public class CheckForZombieTask : Node
         {
             if (collider.CompareTag("Zombie"))
             {
-                myKim.myWalkBuffer.Clear();
-                myKim.blackboard.Data.Remove("path");
+                //myKim.myWalkBuffer.Clear();
+                //myKim.blackboard.Data.Remove("path");
                 zombieFound = true;
                 break; // Exit loop once a zombie is found
             }
