@@ -1,37 +1,36 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Sequence : Node
 {
-    public Sequence(List<Node> someChildren) : base(someChildren)
-    {
-    }
+    public Sequence(List<Node> someChildren) : base(someChildren) { }
 
     public override ReturnState EvaluateState()
     {
-        // Default to failure
-        ReturnState aState = ReturnState.s_Success;
-        bool anyChildRunning = false; 
+        // If already evaluated and cached, return cached result
+        if (cachedState != ReturnState.s_Running)
+        {
+            return cachedState;
+        }
 
         foreach (Node child in myChildren)
         {
             ReturnState childState = child.EvaluateState();
 
-            switch (childState)
+            if (childState == ReturnState.s_Failure)
             {
-                case ReturnState.s_Success:
-                    break;
-                case ReturnState.s_Failure:
-                    aState = ReturnState.s_Failure;
-                    break;
-                case ReturnState.s_Running:
-                    anyChildRunning = true;
-                    aState = ReturnState.s_Running;
-                    break;
+                cachedState = ReturnState.s_Failure; // Cache failure
+                return cachedState;
+            }
+
+            if (childState == ReturnState.s_Running)
+            {
+                return ReturnState.s_Running;
             }
         }
 
-        return anyChildRunning ? ReturnState.s_Running : aState;
+        cachedState = ReturnState.s_Success; // Cache success if all children succeed
+        return cachedState;
     }
 }
+

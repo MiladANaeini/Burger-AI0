@@ -14,28 +14,27 @@ public class GoAroundZombieTask : Node
     public override ReturnState EvaluateState()
     {
         BlackBoard blackboard = myKim.blackboard;
+        Debug.Log("Checking for zombies: " + blackboard.Data["zombieDetected"]);
 
+        // If no zombie is detected, we fail this task to allow the Selector to move on
         if (!blackboard.Data.ContainsKey("zombieDetected") || !(bool)blackboard.Data["zombieDetected"])
         {
-            return ReturnState.s_Failure;
+            Debug.Log("No zombies detected. Failing GoAroundZombieTask.");
+            return ReturnState.s_Success; // Indicate failure, allowing the Selector to check the next task
         }
 
+        // Zombie detected logic
         Grid.Tile startTile = Grid.Instance.GetClosest(myKim.transform.position);
         Grid.Tile endTile = Grid.Instance.GetFinishTile();
+        Debug.Log("Zombie detected, finding an alternative path...");
 
         List<Grid.Tile> newPath = FindPathWithZombieAvoidance(startTile, endTile);
-
-        if (newPath == null || newPath.Count == 0)
-        {
-            Debug.Log("Failed to find a path around zombies.");
-            return ReturnState.s_Failure; // Pathfinding failed
-        }
-
         blackboard.Data["path"] = newPath;
-        Debug.Log("New path avoiding zombies stored in blackboard.");
 
-        return ReturnState.s_Failure;  
+        // Here, we can return Success or Running based on the task's context
+        return ReturnState.s_Failure; // Return success after handling zombies
     }
+
     private List<Grid.Tile> FindPathWithZombieAvoidance(Grid.Tile startTile, Grid.Tile endTile)
     {
         List<Grid.Tile> openList = new List<Grid.Tile>();

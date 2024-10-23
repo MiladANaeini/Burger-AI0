@@ -7,39 +7,57 @@ using UnityEngine;
 public class FindPathTask : Node
 {
     private Kim myKim;
-    
+    private bool pathFound = false;
     public FindPathTask(Kim kim) : base(new List<Node>())
     {
         myKim = kim;
+
     }
 
     public override ReturnState EvaluateState()
     {
+        if (pathFound)
+        {
+            Debug.Log("Path already found, success.");
+            return ReturnState.s_Failure; // Return cached success state
+        }
+
         BlackBoard blackboard = myKim.blackboard;
 
-        // Check if the path is already valid in the blackboard
-        if (blackboard.Data.ContainsKey("zombieDetected") && !(bool)blackboard.Data["zombieDetected"] &&
-            blackboard.Data.ContainsKey("path") && blackboard.Data["path"] is List<Grid.Tile> path && path.Count > 0)
+        if (blackboard.Data.ContainsKey("zombieDetected") && (bool)blackboard.Data["zombieDetected"])
         {
-            Debug.Log("Path found in blackboard, success.");
+            Debug.Log("Zombie detected, fail.");
             return ReturnState.s_Success;
         }
 
-        // Find a new path from the current position to the destination
+        if (blackboard.Data.ContainsKey("path") && blackboard.Data["path"] is List<Grid.Tile> path && path.Count > 0)
+        {
+            Debug.Log("Path already found in blackboard, success.");
+            pathFound = true; // Cache it in
+            return ReturnState.s_Failure;
+        }
+
         List<Grid.Tile> newPath = FindPath(Grid.Instance.GetClosest(myKim.transform.position), Grid.Instance.GetFinishTile());
 
         if (newPath == null || newPath.Count == 0)
         {
             Debug.Log("Pathfinding failed.");
-            return ReturnState.s_Failure;
+            return ReturnState.s_Success;
         }
 
-        // Store the new path in the blackboard
         blackboard.Data["path"] = newPath;
         Debug.Log("New path found and stored.");
-        return ReturnState.s_Success;
+        pathFound = true; // Cache the result so this task doesn't run again
+        return ReturnState.s_Failure;
     }
 
+    public override void Reset()
+    {
+        base.Reset();
+        pathFound = false; // Reset cached result when the behavior tree is reset
+    
+     }
+ 
     private List<Grid.Tile> FindPath(Grid.Tile startTile, Grid.Tile endTile)
     {
         List<Grid.Tile> openList = new List<Grid.Tile>();

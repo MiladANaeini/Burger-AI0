@@ -15,9 +15,11 @@ public class CheckZombieCondition : Node
     // Evaluates the condition: whether a zombie is detected
     public override ReturnState EvaluateState()
     {
-        Debug.Log("Blackboard value - zombieDetected: " + myKim.blackboard.Data["zombieDetected"]);
+        Debug.Log("Con"+ myKim.blackboard.Data["zombieDetected"]);
         if ((bool)myKim.blackboard.Data["zombieDetected"])
         {
+            Debug.Log("KIR");
+
             return ReturnState.s_Success;
         }
         return ReturnState.s_Failure;

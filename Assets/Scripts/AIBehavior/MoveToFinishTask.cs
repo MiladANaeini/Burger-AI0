@@ -14,10 +14,10 @@ public class MoveToFinishTask : Node
     public override ReturnState EvaluateState()
     {
 
-        if ((bool)myKim.blackboard.Data["zombieDetected"])
+        if (myKim.blackboard.Data.ContainsKey("zombieDetected") && (bool)myKim.blackboard.Data["zombieDetected"])
         {
-            Debug.Log("Zombie detected! Stopping movement. " +
-                "Blackboard value - zombieDetected: " + myKim.blackboard.Data["zombieDetected"]);
+            Debug.Log("movetask Failed");
+          
             return ReturnState.s_Failure; 
         }
 
@@ -42,9 +42,11 @@ public class MoveToFinishTask : Node
     
         if (myKim.myReachedDestination)
         {
-            return ReturnState.s_Running;
-        }
 
-        return ReturnState.s_Success;
+            return ReturnState.s_Success;
+        }
+            Debug.Log("kos");
+
+        return ReturnState.s_Running;
     }
 }
