@@ -19,9 +19,9 @@ public class KimBT : MonoBehaviour
             {
                 new CheckZombieCondition(myKim),      // If a zombie is detected, proceed.
                 new ResetZombieDetectionTask(myKim),  // Reset zombie detection flag after pathfinding.
-                new FindPathTask(myKim),              // Recalculate the path to avoid the zombie.
-                new CheckForZombieTask(myKim),        // Check for zombies in the vicinity.
-                new MoveToFinishTask(myKim)           // Move along the newly found path.
+                new GoAroundZombieTask(myKim),              // Recalculate the path to avoid the zombie.
+                //new CheckForZombieTask(myKim),        // Check for zombies in the vicinity.
+                //new MoveToFinishTask(myKim)           // Move along the newly found path.
             }),
 
             // If no zombie is detected, proceed with normal pathfinding and movement.

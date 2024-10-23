@@ -1,46 +1,42 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using System.Linq;
 
-public class FindPathTask : Node
+
+public class GoAroundZombieTask : Node
 {
     private Kim myKim;
-    
-    public FindPathTask(Kim kim) : base(new List<Node>())
+    public GoAroundZombieTask(Kim kim) : base(new List<Node>())
     {
         myKim = kim;
     }
-
     public override ReturnState EvaluateState()
     {
         BlackBoard blackboard = myKim.blackboard;
 
-        // Check if the path is already valid in the blackboard
-        if (blackboard.Data.ContainsKey("zombieDetected") && !(bool)blackboard.Data["zombieDetected"] &&
-            blackboard.Data.ContainsKey("path") && blackboard.Data["path"] is List<Grid.Tile> path && path.Count > 0)
+        if (!blackboard.Data.ContainsKey("zombieDetected") || !(bool)blackboard.Data["zombieDetected"])
         {
-            Debug.Log("Path found in blackboard, success.");
-            return ReturnState.s_Success;
-        }
-
-        // Find a new path from the current position to the destination
-        List<Grid.Tile> newPath = FindPath(Grid.Instance.GetClosest(myKim.transform.position), Grid.Instance.GetFinishTile());
-
-        if (newPath == null || newPath.Count == 0)
-        {
-            Debug.Log("Pathfinding failed.");
             return ReturnState.s_Failure;
         }
 
-        // Store the new path in the blackboard
-        blackboard.Data["path"] = newPath;
-        Debug.Log("New path found and stored.");
-        return ReturnState.s_Success;
-    }
+        Grid.Tile startTile = Grid.Instance.GetClosest(myKim.transform.position);
+        Grid.Tile endTile = Grid.Instance.GetFinishTile();
 
-    private List<Grid.Tile> FindPath(Grid.Tile startTile, Grid.Tile endTile)
+        List<Grid.Tile> newPath = FindPathWithZombieAvoidance(startTile, endTile);
+
+        if (newPath == null || newPath.Count == 0)
+        {
+            Debug.Log("Failed to find a path around zombies.");
+            return ReturnState.s_Failure; // Pathfinding failed
+        }
+
+        blackboard.Data["path"] = newPath;
+        Debug.Log("New path avoiding zombies stored in blackboard.");
+
+        return ReturnState.s_Failure;  
+    }
+    private List<Grid.Tile> FindPathWithZombieAvoidance(Grid.Tile startTile, Grid.Tile endTile)
     {
         List<Grid.Tile> openList = new List<Grid.Tile>();
         HashSet<Grid.Tile> closedList = new HashSet<Grid.Tile>();
@@ -71,7 +67,8 @@ public class FindPathTask : Node
                     continue;
                 }
 
-                float tentativeGCost = gCost[currentTile] + GetDistance(currentTile, neighbor);
+                float zombiePenalty = GetZombiePenalty(neighbor);
+                float tentativeGCost = gCost[currentTile] + GetDistance(currentTile, neighbor) + zombiePenalty;
 
                 if (!openList.Contains(neighbor))
                 {
@@ -88,7 +85,24 @@ public class FindPathTask : Node
             }
         }
 
-        return new List<Grid.Tile>(); // No path found
+        return new List<Grid.Tile>();
+    }
+    // Same helper methods as in FindPathTask
+    private float GetZombiePenalty(Grid.Tile tile)
+    {
+        float penalty = 5; // Base penalty value
+
+        Collider[] colliders = Physics.OverlapSphere(Grid.Instance.WorldPos(tile), 1.0f); // Adjust radius as needed
+        foreach (var collider in colliders)
+        {
+            if (collider.CompareTag("Zombie"))
+            {
+                float distanceToZombie = Vector3.Distance(Grid.Instance.WorldPos(tile), collider.transform.position);
+                penalty += Mathf.Clamp(10 - distanceToZombie, 0, 10); // Max penalty of 10
+            }
+        }
+
+        return penalty;
     }
     private float GetHeuristic(Grid.Tile a, Grid.Tile b)
     {
@@ -127,6 +141,7 @@ public class FindPathTask : Node
 
         return neighbors;
     }
+
     private float GetDistance(Grid.Tile a, Grid.Tile b)
     {
         int dx = Mathf.Abs(a.x - b.x);
@@ -135,3 +150,4 @@ public class FindPathTask : Node
         return dx > dy ? 1.41f * dy + 1 * (dx - dy) : 1.41f * dx + 1 * (dy - dx);
     }
 }
+

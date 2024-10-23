@@ -42,9 +42,9 @@ public class MoveToFinishTask : Node
     
         if (myKim.myReachedDestination)
         {
-            return ReturnState.s_Success;
+            return ReturnState.s_Running;
         }
 
-        return ReturnState.s_Running;
+        return ReturnState.s_Success;
     }
 }
