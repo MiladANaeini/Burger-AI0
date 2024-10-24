@@ -19,8 +19,9 @@ public class ResetZombieDetectionTask : Node
             myKim.blackboard.Data["zombieDetected"] = false;
         Debug.Log("Resetting zombieDetected2222222222222222" + myKim.blackboard.Data["zombieDetected"]);
 
-        }
         return ReturnState.s_Failure;
+        }
+        return ReturnState.s_Success;
 
     }
 

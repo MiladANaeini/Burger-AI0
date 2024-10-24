@@ -8,33 +8,52 @@ using System.IO;
 public class GoAroundZombieTask : Node
 {
     private Kim myKim;
-    public GoAroundZombieTask(Kim kim) : base(new List<Node>())
+    private KimBT behaviorTree;
+
+    public GoAroundZombieTask(Kim kim, KimBT bt) : base(new List<Node>())
     {
         myKim = kim;
+        behaviorTree = bt;
     }
+
     public override ReturnState EvaluateState()
     {
         BlackBoard blackboard = myKim.blackboard;
-        Debug.Log("Checking for zombies: " + blackboard.Data["zombieDetected"]);
 
-        // If no zombie is detected, we fail this task to allow the Selector to move on
-        if (!blackboard.Data.ContainsKey("zombieDetected") || !(bool)blackboard.Data["zombieDetected"])
+        // If a path has already been found and cached, skip this task
+        if (behaviorTree.IsPathFound())
         {
-            Debug.Log("No zombies detected. Failing GoAroundZombieTask.");
-            return ReturnState.s_Success; // Indicate failure, allowing the Selector to check the next task
+            Debug.Log("Path already found, skipping GoAroundZombieTask.");
+            return ReturnState.s_Success; // Skip the task and proceed to the next in the sequence
         }
 
-        // Zombie detected logic
+        Debug.Log("Checking for zombies: " + blackboard.Data["zombieDetected"]);
+
+        // If no zombies are detected, we succeed to allow FindPathTask to run next
+        if (!blackboard.Data.ContainsKey("zombieDetected") || !(bool)blackboard.Data["zombieDetected"])
+        {
+            Debug.Log("No zombies detected. Succeeding GoAroundZombieTask.");
+            return ReturnState.s_Success; // Indicate success and proceed to FindPathTask
+        }
+
+        // Zombies are detected, we attempt to find a new path
         Grid.Tile startTile = Grid.Instance.GetClosest(myKim.transform.position);
         Grid.Tile endTile = Grid.Instance.GetFinishTile();
         Debug.Log("Zombie detected, finding an alternative path...");
 
         List<Grid.Tile> newPath = FindPathWithZombieAvoidance(startTile, endTile);
+
+        // Cache the path in the blackboard
+        blackboard.Data.Remove("path");
         blackboard.Data["path"] = newPath;
         myKim.SetWalkBuffer(newPath);
+        blackboard.Data["zombieDetected"] = false;
 
-        // Here, we can return Success or Running based on the task's context
-        return ReturnState.s_Failure; // Return success after handling zombies
+        // Mark the path as found, to prevent re-calculating every frame
+        behaviorTree.SetPathFound(true);
+
+        // Return failure to stop the sequence and prevent FindPathTask from running
+        return ReturnState.s_Failure; // Failure stops the sequence, ensuring no other tasks run
     }
 
     private List<Grid.Tile> FindPathWithZombieAvoidance(Grid.Tile startTile, Grid.Tile endTile)
