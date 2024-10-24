@@ -6,9 +6,11 @@ using UnityEngine;
 public class MoveToFinishTask : Node
 {
     private Kim myKim;
+    private List<Grid.Tile> lastPath;
     public MoveToFinishTask(Kim kim) : base(new List<Node>())
     {
         myKim = kim;
+        lastPath = null;
     }
 
     public override ReturnState EvaluateState()
@@ -22,24 +24,29 @@ public class MoveToFinishTask : Node
         }
 
 
-        if (!myKim.blackboard.Data.ContainsKey("path"))
+        // Check if a valid path exists in the blackboard
+        if (!myKim.blackboard.Data.ContainsKey("path") || myKim.blackboard.Data["path"] == null)
         {
-            Debug.Log("No path in blackboard.");
+            Debug.LogError("No path found in blackboard.");
             return ReturnState.s_Failure;
         }
 
 
-        List<Grid.Tile> path = (List<Grid.Tile>)myKim.blackboard.Data["path"];
-   
-        if (myKim.myWalkBuffer.Count == 0 && path.Count > 0)
+        List<Grid.Tile> currentPath = (List<Grid.Tile>)myKim.blackboard.Data["path"];
+
+        // Check if the path has changed
+        if (lastPath == null || !currentPath.SequenceEqual(lastPath))
         {
-           
-                myKim.SetWalkBuffer(path);
-                Debug.Log("Path set in Kim's walk buffer.");
-            
+            Debug.Log("Path has changed. Resetting MoveToFinishTask.");
+            lastPath = new List<Grid.Tile>(currentPath);  // Store the new path
+
+            // Reset Kim's walk buffer with the updated path
+            myKim.SetWalkBuffer(currentPath);
+
+            // Perform any other necessary resets here
         }
 
-    
+
         if (myKim.myReachedDestination)
         {
 

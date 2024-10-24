@@ -1,62 +1,98 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
-using System.IO;
+using UnityEngine;
 
-
-public class GoAroundZombieTask : Node
+public class FindBurgerPathTask : Node
 {
     private Kim myKim;
-    private KimBT behaviorTree;
+    private bool pathFound = false;
+    private List<GameObject> burgers;
 
-    public GoAroundZombieTask(Kim kim, KimBT bt) : base(new List<Node>())
+    public FindBurgerPathTask(Kim kim) : base(new List<Node>())
     {
         myKim = kim;
-        behaviorTree = bt;
     }
 
     public override ReturnState EvaluateState()
     {
+        if (pathFound)
+        {
+            Debug.Log("Burger path already found, success.");
+            return ReturnState.s_Failure;  // Return failure to move to the next task after the burger is collected
+        }
+
         BlackBoard blackboard = myKim.blackboard;
 
-        // If a path has already been found and cached, skip this task
-        if (behaviorTree.IsPathFound())
+        // Get all burgers in the scene (assuming they are tagged as "Burger")
+        if (burgers == null || burgers.Count == 0)
         {
-            Debug.Log("Path already found, skipping GoAroundZombieTask.");
-            return ReturnState.s_Success; // Skip the task and proceed to the next in the sequence
+            burgers = new List<GameObject>(GameObject.FindGameObjectsWithTag("Burger"));
         }
 
-        Debug.Log("Checking for zombies: " + blackboard.Data["zombieDetected"]);
-
-        // If no zombies are detected, we succeed to allow FindPathTask to run next
-        if (!blackboard.Data.ContainsKey("zombieDetected") || !(bool)blackboard.Data["zombieDetected"])
+        if (burgers.Count == 0)
         {
-            Debug.Log("No zombies detected. Succeeding GoAroundZombieTask.");
-            return ReturnState.s_Success; // Indicate success and proceed to FindPathTask
+            Debug.Log("No more burgers found, moving to finish.");
+            return ReturnState.s_Success;
         }
 
-        // Zombies are detected, we attempt to find a new path
-        Grid.Tile startTile = Grid.Instance.GetClosest(myKim.transform.position);
-        Grid.Tile endTile = Grid.Instance.GetFinishTile();
-        Debug.Log("Zombie detected, finding an alternative path...");
+        GameObject closestBurger = GetClosestBurger();
+        if (closestBurger == null)
+        {
+            Debug.Log("Couldn't find a path to the burger, failing.");
+            return ReturnState.s_Success;
+        }
 
-        List<Grid.Tile> newPath = FindPathWithZombieAvoidance(startTile, endTile);
+        // Find the path to the closest burger
+        List<Grid.Tile> newPath = FindPath(Grid.Instance.GetClosest(myKim.transform.position), Grid.Instance.GetClosest(closestBurger.transform.position));
 
-        // Cache the path in the blackboard
+        if (newPath == null || newPath.Count == 0)
+        {
+            Debug.Log("Pathfinding to burger failed.");
+            return ReturnState.s_Success;
+        }
+        // Store the path in the blackboard
         blackboard.Data.Remove("path");
         blackboard.Data["path"] = newPath;
-        //myKim.SetWalkBuffer(newPath);
-        blackboard.Data["zombieDetected"] = false;
+        myKim.SetWalkBuffer(newPath);
 
-        // Mark the path as found, to prevent re-calculating every frame
-        behaviorTree.SetPathFound(true);
+        Debug.Log("New burger path found and stored.");
 
-        // Return failure to stop the sequence and prevent FindPathTask from running
-        return ReturnState.s_Failure; // Failure stops the sequence, ensuring no other tasks run
+        // Remove the collected burger from the list without destroying it
+        burgers.Remove(closestBurger);
+
+        pathFound = true;  // Cache the result so this task doesn't run again for the same burger
+        return ReturnState.s_Failure;  // Task complete, return failure to move to next task
     }
 
-    private List<Grid.Tile> FindPathWithZombieAvoidance(Grid.Tile startTile, Grid.Tile endTile)
+    public override void Reset()
+    {
+        base.Reset();
+        pathFound = false;  // Reset the cached path when the task is reset
+    }
+
+    // Helper function to find the closest burger
+    private GameObject GetClosestBurger()
+    {
+        GameObject closest = null;
+        float minDistance = float.MaxValue;
+
+        foreach (GameObject burger in burgers)
+        {
+            if (burger == null) continue; // Check if burger still exists
+
+            float distance = Vector3.Distance(myKim.transform.position, burger.transform.position);
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                closest = burger;
+            }
+        }
+
+        return closest;
+    }
+
+    // You can use your existing pathfinding logic here to find the path
+    private List<Grid.Tile> FindPath(Grid.Tile startTile, Grid.Tile endTile)
     {
         List<Grid.Tile> openList = new List<Grid.Tile>();
         HashSet<Grid.Tile> closedList = new HashSet<Grid.Tile>();
@@ -87,8 +123,7 @@ public class GoAroundZombieTask : Node
                     continue;
                 }
 
-                float zombiePenalty = GetZombiePenalty(neighbor);
-                float tentativeGCost = gCost[currentTile] + GetDistance(currentTile, neighbor) + zombiePenalty;
+                float tentativeGCost = gCost[currentTile] + GetDistance(currentTile, neighbor);
 
                 if (!openList.Contains(neighbor))
                 {
@@ -105,23 +140,7 @@ public class GoAroundZombieTask : Node
             }
         }
 
-        return new List<Grid.Tile>();
-    }
-    private float GetZombiePenalty(Grid.Tile tile)
-    {
-        float penalty = 5; // Base penalty value
-
-        Collider[] colliders = Physics.OverlapSphere(Grid.Instance.WorldPos(tile), 1.0f); // Adjust radius as needed
-        foreach (var collider in colliders)
-        {
-            if (collider.CompareTag("Zombie"))
-            {
-                float distanceToZombie = Vector3.Distance(Grid.Instance.WorldPos(tile), collider.transform.position);
-                penalty += Mathf.Clamp(10 - distanceToZombie, 0, 10); // Max penalty of 10
-            }
-        }
-
-        return penalty;
+        return new List<Grid.Tile>(); // Placeholder
     }
     private float GetHeuristic(Grid.Tile a, Grid.Tile b)
     {
@@ -160,7 +179,6 @@ public class GoAroundZombieTask : Node
 
         return neighbors;
     }
-
     private float GetDistance(Grid.Tile a, Grid.Tile b)
     {
         int dx = Mathf.Abs(a.x - b.x);
@@ -169,4 +187,3 @@ public class GoAroundZombieTask : Node
         return dx > dy ? 1.41f * dy + 1 * (dx - dy) : 1.41f * dx + 1 * (dy - dx);
     }
 }
-
