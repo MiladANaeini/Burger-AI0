@@ -107,7 +107,6 @@ public class GoAroundZombieTask : Node
 
         return new List<Grid.Tile>();
     }
-    // Same helper methods as in FindPathTask
     private float GetZombiePenalty(Grid.Tile tile)
     {
         float penalty = 5; // Base penalty value

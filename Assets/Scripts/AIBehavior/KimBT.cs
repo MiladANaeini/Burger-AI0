@@ -41,20 +41,15 @@ public class KimBT : MonoBehaviour
     {
         ReturnState treeState = myBehaviorTree.myRootNode.EvaluateState();
 
-        if (treeState == ReturnState.s_Failure)
+        // Add logging to see the tree's state.
+        Debug.Log("Evaluating tree state: " + treeState);
+
+        if (treeState == ReturnState.s_Failure || treeState == ReturnState.s_Success)
         {
-            if ((bool)myBehaviorTree.myBlackBoard.Data["zombieDetected"])
-            {
-                Debug.Log("Zombie detected, resetting zombie-related tasks.");
-                ResetZombieRelatedTasks();
-            }
-            else
-            {
-                Debug.Log("Tree failed, resetting entire behavior tree.");
-                myBehaviorTree.myRootNode.ResetCachedState();
-                zombieCheckTask.ClearDetectedZombies();
-                pathFound = false;  // Reset the pathFound flag
-            }
+            // Reset the entire tree so it can evaluate again next frame.
+            Debug.Log("Tree completed with state: " + treeState + ", resetting for next evaluation.");
+            myBehaviorTree.myRootNode.ResetCachedState();
+            zombieCheckTask.ClearDetectedZombies();  // Clear zombie detection if needed.
         }
     }
     public bool IsPathFound()
