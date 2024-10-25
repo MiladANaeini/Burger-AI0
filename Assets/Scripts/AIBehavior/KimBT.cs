@@ -21,7 +21,7 @@ public class KimBT : MonoBehaviour
     new Sequence(new List<Node>
     {
         new GoAroundZombieTask(myKim, this),
-        //new FindBurgerPathTask(myKim),
+        new FindBurgerPathTask(myKim),
         new FindPathTask(myKim),       
     }),
 

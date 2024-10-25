@@ -38,7 +38,16 @@ public class GoAroundZombieTask : Node
 
         // Zombies are detected, we attempt to find a new path
         Grid.Tile startTile = Grid.Instance.GetClosest(myKim.transform.position);
-        Grid.Tile endTile = Grid.Instance.GetFinishTile();
+        Grid.Tile endTile;
+        GameObject closestBurger = GetClosestBurger();
+        if (closestBurger != null)
+        {
+            endTile = Grid.Instance.GetClosest(closestBurger.transform.position);
+        }
+        else
+        {
+            endTile = Grid.Instance.GetFinishTile();
+        }
         Debug.Log("Zombie detected, finding an alternative path...");
 
         List<Grid.Tile> newPath = FindPathWithZombieAvoidance(startTile, endTile);
@@ -55,7 +64,11 @@ public class GoAroundZombieTask : Node
         // Return failure to stop the sequence and prevent FindPathTask from running
         return ReturnState.s_Failure; // Failure stops the sequence, ensuring no other tasks run
     }
-
+    private GameObject GetClosestBurger()
+    {
+        var burgers = GameObject.FindGameObjectsWithTag("Burger");
+        return burgers.OrderBy(b => Vector3.Distance(myKim.transform.position, b.transform.position)).FirstOrDefault();
+    }
     private List<Grid.Tile> FindPathWithZombieAvoidance(Grid.Tile startTile, Grid.Tile endTile)
     {
         List<Grid.Tile> openList = new List<Grid.Tile>();
